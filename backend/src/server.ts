@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import path from 'path';
-import { db } from './db';
+import { dbImproved as db } from './db';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -32,8 +32,23 @@ app.post('/api/stock', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'quantity deve ser número' });
     }
 
-    const id = await db.insertRecord(material, qty, location, message, unit, type);
-    res.status(201).json({ ok: true, id });
+    // O quantity já vem com sinal correto do frontend
+    // Entrada: positivo, Saída: negativo
+    const result = await db.insertRecord(
+      material,
+      Math.abs(qty), // db.insertRecord espera valor absoluto e usa o 'type' para determinar o sinal
+      type || 'entrada',
+      null, // userId (sem autenticação)
+      location,
+      message,
+      unit
+    );
+
+    if (result.success) {
+      res.status(201).json({ ok: true, id: result.id });
+    } else {
+      res.status(400).json({ error: result.error });
+    }
   } catch (error) {
     res.status(500).json({ error: String(error) });
   }
@@ -61,6 +76,45 @@ app.get('/api/dashboard-data', async (req: Request, res: Response) => {
   try {
     const data = await db.getDashboardData();
     res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+app.get('/api/materiais', async (req: Request, res: Response) => {
+  try {
+    const materiais = await db.getSummary();
+    res.json(materiais);
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+app.get('/api/materials', async (req: Request, res: Response) => {
+  try {
+    const materials = await db.getAllMaterials();
+    res.json(materials);
+  } catch (error) {
+    res.status(500).json({ error: String(error) });
+  }
+});
+
+app.put('/api/materials/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { min_stock, max_stock } = req.body;
+
+    const result = await db.updateMaterialLimits(
+      parseInt(id),
+      parseFloat(min_stock),
+      max_stock ? parseFloat(max_stock) : null
+    );
+
+    if (result.success) {
+      res.json({ ok: true });
+    } else {
+      res.status(400).json({ error: result.error });
+    }
   } catch (error) {
     res.status(500).json({ error: String(error) });
   }
