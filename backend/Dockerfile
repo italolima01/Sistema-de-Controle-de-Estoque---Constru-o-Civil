@@ -1,4 +1,4 @@
-# Backend Dockerfile - Node.js + TypeScript + Express
+# Backend Dockerfile - Node.js + TypeScript + Express + SQLite (Estrutura Melhorada)
 FROM node:20-alpine AS builder
 
 # Instalar dependências de build
@@ -36,8 +36,8 @@ RUN npm ci --only=production && npm cache clean --force
 # Copiar código compilado do builder
 COPY --from=builder /app/dist ./dist
 
-# Criar diretório para o banco de dados
-RUN mkdir -p /app/data && chown -R node:node /app
+# Criar diretório para o banco de dados com permissões corretas
+RUN mkdir -p /app/data && chown -R node:node /app /app/data
 
 # Usar usuário não-root
 USER node
@@ -54,4 +54,5 @@ ENV NODE_ENV=production \
     PORT=5000
 
 # Comando para iniciar
+# O banco de dados será criado automaticamente na primeira execução
 CMD ["node", "dist/server.js"]
