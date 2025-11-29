@@ -1,17 +1,45 @@
 services:
-  # Backend API - Node.js + Express + SQLite
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: buildstock-postgres
+    environment:
+      POSTGRES_DB: buildstock
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres123}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - buildstock-network
+    restart: unless-stopped
+
+  # Backend API - Node.js + Express + PostgreSQL
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: estoque-backend
+    container_name: buildstock-backend
     ports:
       - "5000:5000"
-    volumes:
-      - db-data:/app/data
     environment:
       - NODE_ENV=production
       - PORT=5000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=buildstock
+      - DB_USER=postgres
+      - DB_PASSWORD=${DB_PASSWORD:-postgres123}
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5000/api/summary || exit 1"]
@@ -20,14 +48,14 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - estoque-network
+      - buildstock-network
 
   # Frontend - Nginx + Static Files
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: estoque-frontend
+    container_name: buildstock-frontend
     ports:
       - "80:80"
     depends_on:
@@ -35,12 +63,12 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - estoque-network
+      - buildstock-network
 
 networks:
-  estoque-network:
+  buildstock-network:
     driver: bridge
 
 volumes:
-  db-data:
+  postgres-data:
     driver: local

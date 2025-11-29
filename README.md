@@ -13,7 +13,7 @@ Sistema completo de controle de estoque para construção civil com dashboard in
 - ⚙️ Configuração de limites de estoque (mínimo/máximo)
 - 🔔 Alertas automáticos de estoque baixo/alto
 - ✅ Validação de estoque (impede saídas sem estoque)
-- 🗄️ Banco de dados SQLite normalizado e otimizado
+- 🗄️ Banco de dados PostgreSQL escalável e robusto
 - 🐳 Totalmente containerizado com Docker
 - 🚀 API REST completa
 - 💾 Persistência de estado (lembra última aba visitada)
@@ -156,7 +156,7 @@ Dados para dashboard (gráficos + últimos registros + estatísticas)
 - Node.js 20
 - TypeScript
 - Express.js
-- SQLite3
+- PostgreSQL 16
 
 ### Frontend
 - TypeScript

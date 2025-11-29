@@ -856,6 +856,41 @@
       <!-- Tabela de Registros -->
       <div id="historico" class="section">
         <h2 class="section-title">📋 Histórico de Movimentações</h2>
+        
+        <!-- Filtros -->
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">🔍 Buscar Material</label>
+                <input type="text" class="form-control" id="filterMaterial" placeholder="Digite o nome do material...">
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">📦 Tipo</label>
+                <select class="form-select" id="filterType">
+                  <option value="">Todos</option>
+                  <option value="entrada">Entrada</option>
+                  <option value="saida">Saída</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">📅 Período</label>
+                <select class="form-select" id="filterPeriod">
+                  <option value="all">Todos</option>
+                  <option value="today">Hoje</option>
+                  <option value="week">Última Semana</option>
+                  <option value="month">Último Mês</option>
+                </select>
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                  🔄 Limpar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <div class="card">
           <div class="card-body">
             <div id="tableContainer">Carregando...</div>

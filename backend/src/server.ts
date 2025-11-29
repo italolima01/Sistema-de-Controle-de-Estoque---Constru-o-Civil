@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import path from 'path';
-import { dbImproved as db } from './db';
+import { dbPostgres as db } from './db';
 
 const app = express();
 const PORT = process.env.PORT || 5000;

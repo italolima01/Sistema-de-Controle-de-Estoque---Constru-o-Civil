@@ -1,8 +1,7 @@
-# Backend Dockerfile - Node.js + TypeScript + Express + SQLite (Estrutura Melhorada)
-FROM node:20-slim AS builder
+# Backend Dockerfile - Node.js + TypeScript + Express + PostgreSQL
+FROM node:20-alpine AS builder
 
-# Instalar dependências de build
-RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+# Não precisa mais de Python (era só para compilar sqlite3)
 
 WORKDIR /app
 
@@ -26,24 +25,24 @@ COPY src ./src
 RUN npm run build
 
 # Stage 2: Production
-FROM node:20-slim
+FROM node:20-alpine
 
-# Instalar dependências de runtime
-RUN apt-get update && apt-get install -y sqlite3 wget && rm -rf /var/lib/apt/lists/*
+# Instalar apenas wget para health check
+RUN apk add --no-cache wget
 
 WORKDIR /app
 
 # Copiar package.json
 COPY package*.json ./
 
-# Copiar node_modules do builder (já compilado para Linux)
+# Copiar node_modules do builder
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copiar código compilado do builder
 COPY --from=builder /app/dist ./dist
 
-# Criar diretório para o banco de dados com permissões corretas
-RUN mkdir -p /app/data && chown -R node:node /app /app/data
+# Configurar permissões
+RUN chown -R node:node /app
 
 # Usar usuário não-root
 USER node
@@ -60,5 +59,5 @@ ENV NODE_ENV=production \
     PORT=5000
 
 # Comando para iniciar
-# O banco de dados será criado automaticamente na primeira execução
+# Conecta ao PostgreSQL automaticamente
 CMD ["node", "dist/server.js"]

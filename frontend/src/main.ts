@@ -4,6 +4,13 @@ interface DashboardData {
   labels: string[];
   values: number[];
   latest: StockRecord[];
+  stats: {
+    totalMaterials: number;
+    totalRecords: number;
+    totalEntradas: number;
+    totalSaidas: number;
+    lowStock: number;
+  };
 }
 
 interface StockRecord {
@@ -117,7 +124,7 @@ function renderChart(labels: string[], values: number[], canvasId: string = 'cha
         tooltip: {
           callbacks: {
             label: function(context) {
-              return `Estoque: ${context.parsed.y.toFixed(2)}`;
+              return `Estoque: ${(context.parsed.y || 0).toFixed(2)}`;
             }
           }
         }
@@ -266,7 +273,7 @@ function renderSummary(records: StockRecord[], containerId: string = 'summaryCon
   }
 
   container.innerHTML = `
-    <div class="list-group list-group-flush">
+    <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
       ${sortedMaterials
         .map(
           ([material, qty]) => `
@@ -276,6 +283,46 @@ function renderSummary(records: StockRecord[], containerId: string = 'summaryCon
         </div>
       `
         )
+        .join('')}
+    </div>
+  `;
+}
+
+function renderSummaryFromMaterials(materiais: MaterialSummary[], containerId: string): void {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error('Container não encontrado:', containerId);
+    return;
+  }
+
+  if (materiais.length === 0) {
+    container.innerHTML = '<p class="text-muted small">Nenhum material registrado.</p>';
+    return;
+  }
+
+  // Ordenar por quantidade (maior para menor)
+  const sortedMaterials = [...materiais].sort((a, b) => b.total - a.total);
+
+  container.innerHTML = `
+    <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
+      ${sortedMaterials
+        .map((m) => {
+          let badgeClass = 'bg-success';
+          if (m.status === 'baixo') {
+            badgeClass = 'bg-danger';
+          } else if (m.status === 'alto') {
+            badgeClass = 'bg-warning text-dark';
+          } else if (m.total <= 0) {
+            badgeClass = 'bg-secondary';
+          }
+          
+          return `
+            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+              <span class="small">${escapeHtml(m.material)}</span>
+              <span class="badge ${badgeClass} rounded-pill">${m.total.toFixed(2)} ${escapeHtml(m.unit)}</span>
+            </div>
+          `;
+        })
         .join('')}
     </div>
   `;
@@ -589,26 +636,32 @@ async function loadData(): Promise<void> {
 
     console.log('Dados recebidos:', { dashboardData, allRecords, materiais });
     
-    // Debug: mostrar cálculo do estoque
-    const debugSummary: { [key: string]: number } = {};
-    allRecords.forEach((r) => {
-      debugSummary[r.material] = (debugSummary[r.material] || 0) + r.quantity;
-    });
-    console.log('Estoque calculado:', debugSummary);
+    // Atualizar estatísticas usando os dados do dashboard
+    if (dashboardData.stats) {
+      const totalMateriaisEl = document.getElementById('totalMateriais');
+      const totalRegistrosEl = document.getElementById('totalRegistros');
+      const totalEntradasEl = document.getElementById('totalEntradas');
+      const totalSaidasEl = document.getElementById('totalSaidas');
+
+      if (totalMateriaisEl) totalMateriaisEl.textContent = dashboardData.stats.totalMaterials.toString();
+      if (totalRegistrosEl) totalRegistrosEl.textContent = dashboardData.stats.totalRecords.toString();
+      if (totalEntradasEl) totalEntradasEl.textContent = dashboardData.stats.totalEntradas.toString();
+      if (totalSaidasEl) totalSaidasEl.textContent = dashboardData.stats.totalSaidas.toString();
+    }
     
     // Renderizar no dashboard principal
     renderChart(dashboardData.labels, dashboardData.values, 'dashboardChartCanvas');
     renderTable(dashboardData.latest, 'dashboardTableContainer', 10);
-    renderSummary(allRecords, 'dashboardSummaryContainer');
+    renderSummaryFromMaterials(materiais, 'dashboardSummaryContainer');
     renderEntradaSaidaChart(allRecords);
     renderDistribuicaoChart(allRecords);
-    updateStats(allRecords);
     
     // Renderizar na aba de estoque
     renderChart(dashboardData.labels, dashboardData.values, 'chartCanvas');
-    renderSummary(allRecords, 'summaryContainer');
+    renderSummaryFromMaterials(materiais, 'summaryContainer');
     
     // Renderizar na aba de histórico (todas)
+    allRecordsCache = allRecords; // Armazenar no cache para filtros
     renderTable(allRecords, 'tableContainer');
     
     // Renderizar lista de materiais na aba de novo registro
@@ -885,9 +938,89 @@ async function salvarTodasConfigs(): Promise<void> {
   await loadData();
 }
 
+// Variável global para armazenar todos os registros
+let allRecordsCache: StockRecord[] = [];
+
+function applyFilters(): void {
+  const materialFilter = (document.getElementById('filterMaterial') as HTMLInputElement)?.value.toLowerCase() || '';
+  const typeFilter = (document.getElementById('filterType') as HTMLSelectElement)?.value || '';
+  const periodFilter = (document.getElementById('filterPeriod') as HTMLSelectElement)?.value || 'all';
+
+  let filtered = [...allRecordsCache];
+
+  // Filtrar por material
+  if (materialFilter) {
+    filtered = filtered.filter(r => r.material.toLowerCase().includes(materialFilter));
+  }
+
+  // Filtrar por tipo
+  if (typeFilter) {
+    filtered = filtered.filter(r => r.type === typeFilter);
+  }
+
+  // Filtrar por período
+  if (periodFilter !== 'all') {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    filtered = filtered.filter(r => {
+      const recordDate = new Date(r.timestamp);
+      
+      switch (periodFilter) {
+        case 'today':
+          return recordDate >= today;
+        case 'week':
+          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          return recordDate >= weekAgo;
+        case 'month':
+          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          return recordDate >= monthAgo;
+        default:
+          return true;
+      }
+    });
+  }
+
+  // Renderizar tabela filtrada
+  renderTable(filtered, 'tableContainer');
+  
+  // Mostrar contador
+  const container = document.getElementById('tableContainer');
+  if (container && filtered.length < allRecordsCache.length) {
+    const countDiv = document.createElement('div');
+    countDiv.className = 'alert alert-info mt-3';
+    countDiv.innerHTML = `📊 Mostrando ${filtered.length} de ${allRecordsCache.length} registros`;
+    container.appendChild(countDiv);
+  }
+}
+
+function clearFilters(): void {
+  (document.getElementById('filterMaterial') as HTMLInputElement).value = '';
+  (document.getElementById('filterType') as HTMLSelectElement).value = '';
+  (document.getElementById('filterPeriod') as HTMLSelectElement).value = 'all';
+  applyFilters();
+}
+
+function setupFilters(): void {
+  const filterMaterial = document.getElementById('filterMaterial');
+  const filterType = document.getElementById('filterType');
+  const filterPeriod = document.getElementById('filterPeriod');
+
+  if (filterMaterial) {
+    filterMaterial.addEventListener('input', applyFilters);
+  }
+  if (filterType) {
+    filterType.addEventListener('change', applyFilters);
+  }
+  if (filterPeriod) {
+    filterPeriod.addEventListener('change', applyFilters);
+  }
+}
+
 // Expor funções globalmente para o onclick
 (window as any).salvarConfigMaterial = salvarConfigMaterial;
 (window as any).salvarTodasConfigs = salvarTodasConfigs;
+(window as any).clearFilters = clearFilters;
 
 async function init(): Promise<void> {
   const form = document.getElementById('stockForm');
@@ -897,6 +1030,9 @@ async function init(): Promise<void> {
 
   // Setup sidebar navigation
   setupSidebarNavigation();
+  
+  // Setup filters
+  setupFilters();
 
   await loadData();
 }
