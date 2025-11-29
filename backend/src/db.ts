@@ -10,6 +10,8 @@ const pool = new Pool({
   max: 20, // Máximo de conexões no pool
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
+  // Configuração de encoding UTF-8
+  client_encoding: 'UTF8',
 });
 
 export class DatabasePostgres {
