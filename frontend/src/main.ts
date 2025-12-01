@@ -713,16 +713,28 @@ function setupSidebarNavigation(): void {
       activeLink.classList.add('active');
     }
     
-    // Esconde todas as seções
+    // Esconde todas as seções com fade-out
     sections.forEach(section => {
-      (section as HTMLElement).style.display = 'none';
+      const htmlSection = section as HTMLElement;
+      htmlSection.classList.remove('fade-in');
+      htmlSection.classList.add('fade-out');
+      
+      // Aguardar animação antes de esconder
+      setTimeout(() => {
+        htmlSection.style.display = 'none';
+      }, 200);
     });
     
-    // Mostra apenas a seção solicitada
+    // Mostra apenas a seção solicitada com fade-in
     const targetSection = document.getElementById(sectionId);
     if (targetSection) {
-      targetSection.style.display = 'block';
-      console.log('Mostrando seção:', sectionId);
+      // Pequeno delay para garantir que o fade-out terminou
+      setTimeout(() => {
+        targetSection.style.display = 'block';
+        targetSection.classList.remove('fade-out');
+        targetSection.classList.add('fade-in');
+        console.log('Mostrando seção:', sectionId);
+      }, 200);
       
       // Salvar no localStorage
       localStorage.setItem('lastActiveSection', sectionId);

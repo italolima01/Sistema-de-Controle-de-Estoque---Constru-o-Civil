@@ -199,6 +199,37 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Animações de transição entre abas */
+    @keyframes sectionFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes sectionFadeOut {
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-15px);
+      }
+    }
+
+    .fade-in {
+      animation: sectionFadeIn 0.3s ease-out forwards;
+    }
+
+    .fade-out {
+      animation: sectionFadeOut 0.2s ease-in forwards;
+    }
+
     .card {
       border: none;
       box-shadow: var(--card-shadow);
