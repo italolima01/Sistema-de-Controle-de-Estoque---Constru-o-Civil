@@ -1,5 +1,62 @@
 import Chart from 'chart.js/auto';
 
+// Toast Notification System
+type ToastType = 'success' | 'error' | 'warning' | 'info';
+
+interface ToastOptions {
+  title: string;
+  message?: string;
+  type: ToastType;
+  duration?: number;
+}
+
+function showToast(options: ToastOptions): void {
+  const { title, message, type, duration = 4000 } = options;
+  
+  const container = document.getElementById('toastContainer');
+  if (!container) return;
+
+  // Criar elemento do toast
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  
+  // Ícones para cada tipo
+  const icons = {
+    success: '<i class="bi bi-check-circle-fill"></i>',
+    error: '<i class="bi bi-x-circle-fill"></i>',
+    warning: '<i class="bi bi-exclamation-triangle-fill"></i>',
+    info: '<i class="bi bi-info-circle-fill"></i>'
+  };
+
+  toast.innerHTML = `
+    <div class="toast-icon">${icons[type]}</div>
+    <div class="toast-content">
+      <div class="toast-title">${escapeHtml(title)}</div>
+      ${message ? `<div class="toast-message">${escapeHtml(message)}</div>` : ''}
+    </div>
+    <button class="toast-close" aria-label="Fechar">×</button>
+  `;
+
+  // Adicionar ao container
+  container.appendChild(toast);
+
+  // Botão de fechar
+  const closeBtn = toast.querySelector('.toast-close');
+  closeBtn?.addEventListener('click', () => removeToast(toast));
+
+  // Auto-remover após duração
+  setTimeout(() => {
+    removeToast(toast);
+  }, duration);
+}
+
+function removeToast(toast: HTMLElement): void {
+  toast.classList.add('removing');
+  setTimeout(() => {
+    toast.remove();
+  }, 300);
+}
+
 interface DashboardData {
   labels: string[];
   values: number[];
@@ -617,23 +674,39 @@ async function submitStock(event: Event): Promise<void> {
 
     if (!response.ok) {
       // Mostrar mensagem de erro específica do backend
-      alert(`❌ Erro: ${data.error || 'Não foi possível registrar a movimentação'}`);
+      showToast({
+        title: 'Erro ao registrar',
+        message: data.error || 'Não foi possível registrar a movimentação',
+        type: 'error'
+      });
       return;
     }
 
     if (!data.ok) {
       // Caso o backend retorne ok: false
-      alert(`❌ Erro: ${data.error || 'Não foi possível registrar a movimentação'}`);
+      showToast({
+        title: 'Erro ao registrar',
+        message: data.error || 'Não foi possível registrar a movimentação',
+        type: 'error'
+      });
       return;
     }
 
     // Sucesso
     (document.getElementById('stockForm') as HTMLFormElement).reset();
     await loadData();
-    alert('✅ Registro adicionado com sucesso!');
+    showToast({
+      title: 'Registro adicionado!',
+      message: `${material} registrado com sucesso`,
+      type: 'success'
+    });
   } catch (error) {
     console.error('Erro:', error);
-    alert('❌ Erro ao conectar com o servidor. Verifique sua conexão.');
+    showToast({
+      title: 'Erro de conexão',
+      message: 'Não foi possível conectar ao servidor',
+      type: 'error'
+    });
   }
 }
 
@@ -885,14 +958,26 @@ async function salvarConfigMaterial(materialId: number): Promise<void> {
     const data = await response.json();
 
     if (response.ok && data.ok) {
-      alert('✅ Configuração salva com sucesso!');
+      showToast({
+        title: 'Configuração salva!',
+        message: 'Limites de estoque atualizados',
+        type: 'success'
+      });
       await loadData();
     } else {
-      alert(`❌ Erro: ${data.error || 'Não foi possível salvar'}`);
+      showToast({
+        title: 'Erro ao salvar',
+        message: data.error || 'Não foi possível salvar',
+        type: 'error'
+      });
     }
   } catch (error) {
     console.error('Erro:', error);
-    alert('❌ Erro ao conectar com o servidor.');
+    showToast({
+      title: 'Erro de conexão',
+      message: 'Não foi possível conectar ao servidor',
+      type: 'error'
+    });
   }
 }
 
@@ -900,7 +985,11 @@ async function salvarTodasConfigs(): Promise<void> {
   const rows = document.querySelectorAll('#configMateriaisContainer tbody tr');
   
   if (rows.length === 0) {
-    alert('⚠️ Nenhum material para configurar.');
+    showToast({
+      title: 'Nenhum material',
+      message: 'Não há materiais para configurar',
+      type: 'warning'
+    });
     return;
   }
 
@@ -950,15 +1039,27 @@ async function salvarTodasConfigs(): Promise<void> {
   }
 
   // Mostrar resultado
-  let mensagem = '';
-  if (sucessos > 0) {
-    mensagem += `✅ ${sucessos} material(is) configurado(s) com sucesso!\n`;
+  if (sucessos > 0 && erros === 0) {
+    showToast({
+      title: 'Configurações salvas!',
+      message: `${sucessos} material(is) configurado(s) com sucesso`,
+      type: 'success'
+    });
+  } else if (sucessos > 0 && erros > 0) {
+    showToast({
+      title: 'Parcialmente salvo',
+      message: `${sucessos} sucesso(s), ${erros} erro(s)`,
+      type: 'warning',
+      duration: 6000
+    });
+  } else if (erros > 0) {
+    showToast({
+      title: 'Erro ao salvar',
+      message: `${erros} erro(s) encontrado(s)`,
+      type: 'error',
+      duration: 6000
+    });
   }
-  if (erros > 0) {
-    mensagem += `\n❌ ${erros} erro(s):\n${errosMensagens.join('\n')}`;
-  }
-
-  alert(mensagem);
   
   // Recarregar dados
   await loadData();
@@ -1049,7 +1150,11 @@ async function editarMaterial(materialId: number): Promise<void> {
   const material = materiais.find(m => m.id === materialId);
   
   if (!material) {
-    alert('❌ Material não encontrado!');
+    showToast({
+      title: 'Material não encontrado',
+      message: 'Não foi possível localizar o material',
+      type: 'error'
+    });
     return;
   }
 
@@ -1075,7 +1180,11 @@ async function salvarEdicaoMaterial(): Promise<void> {
   const descricao = (document.getElementById('editMaterialDescricao') as HTMLTextAreaElement).value;
 
   if (!nome || !unidade) {
-    alert('❌ Nome e unidade são obrigatórios!');
+    showToast({
+      title: 'Campos obrigatórios',
+      message: 'Nome e unidade são obrigatórios',
+      type: 'warning'
+    });
     return;
   }
 
@@ -1101,14 +1210,26 @@ async function salvarEdicaoMaterial(): Promise<void> {
       const modal = (window as any).bootstrap.Modal.getInstance(document.getElementById('modalEditarMaterial'));
       modal.hide();
       
-      alert('✅ Material atualizado com sucesso!');
+      showToast({
+        title: 'Material atualizado!',
+        message: `${nome} foi atualizado com sucesso`,
+        type: 'success'
+      });
       await loadData();
     } else {
-      alert(`❌ Erro: ${data.error || 'Não foi possível atualizar'}`);
+      showToast({
+        title: 'Erro ao atualizar',
+        message: data.error || 'Não foi possível atualizar',
+        type: 'error'
+      });
     }
   } catch (error) {
     console.error('Erro:', error);
-    alert('❌ Erro ao conectar com o servidor.');
+    showToast({
+      title: 'Erro de conexão',
+      message: 'Não foi possível conectar ao servidor',
+      type: 'error'
+    });
   }
 }
 
@@ -1137,14 +1258,26 @@ async function confirmarExclusaoMaterial(): Promise<void> {
       const modal = (window as any).bootstrap.Modal.getInstance(document.getElementById('modalExcluirMaterial'));
       modal.hide();
       
-      alert('✅ Material excluído com sucesso!');
+      showToast({
+        title: 'Material excluído!',
+        message: 'Material removido com sucesso',
+        type: 'success'
+      });
       await loadData();
     } else {
-      alert(`❌ Erro: ${data.error || 'Não foi possível excluir'}`);
+      showToast({
+        title: 'Erro ao excluir',
+        message: data.error || 'Não foi possível excluir',
+        type: 'error'
+      });
     }
   } catch (error) {
     console.error('Erro:', error);
-    alert('❌ Erro ao conectar com o servidor.');
+    showToast({
+      title: 'Erro de conexão',
+      message: 'Não foi possível conectar ao servidor',
+      type: 'error'
+    });
   }
 }
 
