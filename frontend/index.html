@@ -1055,7 +1055,7 @@
           <div class="col-md-8">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">📊 Estoque por Material</h5>
+                <h5 class="card-title"><i class="bi bi-bar-chart-line"></i> Estoque por Material</h5>
                 <canvas id="dashboardChartCanvas"></canvas>
               </div>
             </div>
@@ -1063,7 +1063,7 @@
           <div class="col-md-4">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">📦 Resumo do Estoque</h5>
+                <h5 class="card-title"><i class="bi bi-box-seam"></i> Resumo do Estoque</h5>
                 <div id="dashboardSummaryContainer">Carregando...</div>
               </div>
             </div>
@@ -1075,7 +1075,7 @@
           <div class="col-md-6">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">📈 Entradas vs Saídas</h5>
+                <h5 class="card-title"><i class="bi bi-arrow-left-right"></i> Entradas vs Saídas</h5>
                 <canvas id="entradaSaidaChart"></canvas>
               </div>
             </div>
@@ -1083,7 +1083,7 @@
           <div class="col-md-6">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">🥧 Distribuição de Materiais</h5>
+                <h5 class="card-title"><i class="bi bi-pie-chart"></i> Distribuição de Materiais</h5>
                 <canvas id="distribuicaoChart"></canvas>
               </div>
             </div>
@@ -1095,7 +1095,7 @@
           <div class="col-12">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">📋 Últimas Movimentações</h5>
+                <h5 class="card-title"><i class="bi bi-list-ul"></i> Últimas Movimentações</h5>
                 <div id="dashboardTableContainer">Carregando...</div>
               </div>
             </div>
@@ -1106,7 +1106,7 @@
       <!-- Formulário de Registro -->
       <div id="novo" class="section">
           <div class="form-section">
-            <h5 class="mb-3">📝 Novo Registro</h5>
+            <h5 class="mb-3"><i class="bi bi-pencil-square"></i> Novo Registro</h5>
             <form id="stockForm">
               <div class="row">
                 <div class="col-md-3 mb-3">
@@ -1147,7 +1147,7 @@
                   <input type="text" class="form-control" id="message" placeholder="Informações adicionais">
                 </div>
                 <div class="col-md-3 mb-3 d-flex align-items-end">
-                  <button type="submit" class="btn btn-primary btn-lg w-100">✅ Registrar</button>
+                  <button type="submit" class="btn btn-primary btn-lg w-100"><i class="bi bi-check-circle"></i> Registrar</button>
                 </div>
               </div>
             </form>
@@ -1158,7 +1158,7 @@
           <div class="col-12">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">📦 Materiais em Estoque</h5>
+                <h5 class="card-title"><i class="bi bi-box-seam"></i> Materiais em Estoque</h5>
                 <div id="materiaisListContainer">Carregando...</div>
               </div>
             </div>
@@ -1168,12 +1168,12 @@
 
       <!-- Gráfico e Resumo -->
       <div id="estoque" class="section">
-        <h2 class="section-title">📊 Visão Geral do Estoque</h2>
+        <h2 class="section-title"><i class="bi bi-bar-chart-line"></i> Visão Geral do Estoque</h2>
         <div class="row">
         <div class="col-md-8">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">📊 Estoque por Material</h5>
+              <h5 class="card-title"><i class="bi bi-bar-chart-line"></i> Estoque por Material</h5>
               <canvas id="chartCanvas"></canvas>
             </div>
           </div>
@@ -1181,7 +1181,7 @@
         <div class="col-md-4">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">📦 Resumo do Estoque</h5>
+              <h5 class="card-title"><i class="bi bi-box-seam"></i> Resumo do Estoque</h5>
               <div id="summaryContainer">Carregando...</div>
             </div>
           </div>
@@ -1191,18 +1191,18 @@
 
       <!-- Tabela de Registros -->
       <div id="historico" class="section">
-        <h2 class="section-title">📋 Histórico de Movimentações</h2>
+        <h2 class="section-title"><i class="bi bi-clock-history"></i> Histórico de Movimentações</h2>
         
         <!-- Filtros -->
         <div class="card mb-3">
           <div class="card-body">
             <div class="row g-3">
               <div class="col-md-4">
-                <label class="form-label">🔍 Buscar Material</label>
+                <label class="form-label"><i class="bi bi-search"></i> Buscar Material</label>
                 <input type="text" class="form-control" id="filterMaterial" placeholder="Digite o nome do material...">
               </div>
               <div class="col-md-3">
-                <label class="form-label">📦 Tipo</label>
+                <label class="form-label"><i class="bi bi-filter"></i> Tipo</label>
                 <select class="form-select" id="filterType">
                   <option value="">Todos</option>
                   <option value="entrada">Entrada</option>
@@ -1210,7 +1210,7 @@
                 </select>
               </div>
               <div class="col-md-3">
-                <label class="form-label">📅 Período</label>
+                <label class="form-label"><i class="bi bi-calendar3"></i> Período</label>
                 <select class="form-select" id="filterPeriod">
                   <option value="all">Todos</option>
                   <option value="today">Hoje</option>
@@ -1220,7 +1220,7 @@
               </div>
               <div class="col-md-2 d-flex align-items-end">
                 <button class="btn btn-outline-secondary w-100" onclick="clearFilters()" title="Limpar todos os filtros">
-                  🔄 Limpar
+                  <i class="bi bi-arrow-clockwise"></i> Limpar
                 </button>
               </div>
             </div>
@@ -1236,24 +1236,24 @@
 
       <!-- Relatórios -->
       <div id="relatorios" class="section">
-        <h2 class="section-title">📈 Relatórios</h2>
+        <h2 class="section-title"><i class="bi bi-graph-up-arrow"></i> Relatórios</h2>
         <div class="card">
           <div class="card-body">
             <p class="text-muted mb-4">Funcionalidade de relatórios em desenvolvimento...</p>
             <div class="row">
                 <div class="col-md-4 mb-3">
                   <button class="btn btn-outline-primary btn-lg w-100" disabled>
-                    📊 Relatório de Movimentações
+                    <i class="bi bi-file-earmark-bar-graph"></i> Relatório de Movimentações
                   </button>
                 </div>
                 <div class="col-md-4 mb-3">
                   <button class="btn btn-outline-primary btn-lg w-100" disabled>
-                    📦 Relatório de Estoque Atual
+                    <i class="bi bi-box-seam"></i> Relatório de Estoque Atual
                   </button>
                 </div>
                 <div class="col-md-4 mb-3">
                   <button class="btn btn-outline-primary btn-lg w-100" disabled>
-                    📉 Relatório de Consumo
+                    <i class="bi bi-graph-down-arrow"></i> Relatório de Consumo
                   </button>
                 </div>
             </div>
@@ -1263,16 +1263,16 @@
 
       <!-- Configurações -->
       <div id="configuracoes" class="section">
-        <h2 class="section-title">⚙️ Configurações de Estoque</h2>
+        <h2 class="section-title"><i class="bi bi-gear"></i> Configurações de Estoque</h2>
         <div class="card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-center mb-4">
               <div>
                 <p class="text-muted mb-2">Configure os limites mínimos e máximos de estoque para cada material.</p>
-                <p class="text-muted mb-0"><small>💡 O sistema alertará quando o estoque estiver abaixo do mínimo (🔴) ou acima do máximo (🟡).</small></p>
+                <p class="text-muted mb-0"><small><i class="bi bi-lightbulb"></i> O sistema alertará quando o estoque estiver abaixo do mínimo ou acima do máximo.</small></p>
               </div>
               <button class="btn btn-success btn-lg" onclick="salvarTodasConfigs()" style="white-space: nowrap;">
-                💾 Salvar Todas
+                <i class="bi bi-floppy"></i> Salvar Todas
               </button>
             </div>
             <div id="configMateriaisContainer">Carregando...</div>
@@ -1290,7 +1290,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">✏️ Editar Material</h5>
+          <h5 class="modal-title"><i class="bi bi-pencil-square"></i> Editar Material</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -1329,8 +1329,8 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">✖️ Cancelar</button>
-          <button type="button" class="btn btn-success" onclick="salvarEdicaoMaterial()">💾 Salvar Alterações</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-circle"></i> Cancelar</button>
+          <button type="button" class="btn btn-success" onclick="salvarEdicaoMaterial()"><i class="bi bi-floppy"></i> Salvar Alterações</button>
         </div>
       </div>
     </div>
@@ -1341,20 +1341,20 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header bg-danger text-white">
-          <h5 class="modal-title">🗑️ Excluir Material</h5>
+          <h5 class="modal-title"><i class="bi bi-trash"></i> Excluir Material</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="deleteMaterialId">
-          <p class="mb-3">⚠️ Tem certeza que deseja excluir o material:</p>
+          <p class="mb-3"><i class="bi bi-exclamation-triangle text-warning"></i> Tem certeza que deseja excluir o material:</p>
           <p class="text-center"><strong id="deleteMaterialNome" class="fs-5"></strong></p>
           <div class="alert alert-warning mt-3">
-            <small>💡 Se houver registros associados, o material será apenas desativado.</small>
+            <small><i class="bi bi-lightbulb"></i> Se houver registros associados, o material será apenas desativado.</small>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">✖️ Cancelar</button>
-          <button type="button" class="btn btn-danger" onclick="confirmarExclusaoMaterial()">🗑️ Confirmar Exclusão</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-circle"></i> Cancelar</button>
+          <button type="button" class="btn btn-danger" onclick="confirmarExclusaoMaterial()"><i class="bi bi-trash"></i> Confirmar Exclusão</button>
         </div>
       </div>
     </div>
